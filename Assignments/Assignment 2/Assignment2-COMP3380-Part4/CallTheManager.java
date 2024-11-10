@@ -21,6 +21,7 @@ public class CallTheManager {
 	public static void main(String[] args) {
 		MyDatabase db = new MyDatabase("staff.sql");
 
+		db.showAll();
 		db.getStaffMember(20001);
 		db.getStaffMember(10001);
 		db.getStaffMember(1);
@@ -67,7 +68,7 @@ class MyDatabase {
 		String line = reader.readLine();
 		// assumes each query is its own line
 		while (line != null) {
-			//System.out.println(line);
+			System.out.println(line);
 			this.connection.createStatement().execute(line);
 			line = reader.readLine();
 		}
@@ -126,45 +127,25 @@ class MyDatabase {
 
 	public void getManager(int id) {
 		try {
-			String sql = "SELECT id, firstname, lastname, manager FROM staff WHERE id = ?";
+			String sql = "Select * from staff where id = ?";
 			PreparedStatement statement = connection.prepareStatement(sql);
-			
-			System.out.println("Getting manager path for " + id);
-			
-			int currentId = id;
-			
-			while (currentId != 0) {
-				statement.setInt(1, currentId);
+
+			while (id != 0) {
+				statement.setInt(1, id);
 				ResultSet resultSet = statement.executeQuery();
-				
+
 				if (resultSet.next()) {
-					int staffId = resultSet.getInt("id");
-					String firstName = resultSet.getString("firstname");
-					String lastName = resultSet.getString("lastname");
-					Integer managerId = resultSet.getObject("manager") != null ? resultSet.getInt("manager") : null;
-					
-					// Print the current staff member's info
-					System.out.println(staffId + " - " + firstName + " " + lastName + (managerId != null ? ", " + managerId : ", 0"));
-					
-					// Move to the manager
-					if (managerId != null) {
-						currentId = managerId;
-					} else {
-						break; // reached the top of the hierarchy
-					}
+					System.out.println(resultSet.getInt("id") + " - " + resultSet.getString("firstname") + " "
+							+ resultSet.getString("lastname") + ", " + resultSet.getInt("manager"));
+					id = resultSet.getInt("manager");
 				} else {
-					System.out.println("No staff member found with ID " + currentId);
 					break;
 				}
 				resultSet.close();
 			}
-			
 			statement.close();
-			
 		} catch (SQLException e) {
 			e.printStackTrace(System.out);
 		}
 	}
-	
-
 }
