@@ -2,6 +2,9 @@ import pandas as pd
 import os
 
 
+
+
+
 # have to review this before the seocnd midterm !
 
 # Path to the CSV file
