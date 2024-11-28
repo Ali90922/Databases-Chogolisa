@@ -28,6 +28,7 @@ def connect_to_database():
 
 
 def main_menu():
+    """Display the main menu and handle navigation."""
     print("+---------------------------------------+")
     print("| NHL Query Interface                   |")
     print("+---------------------------------------+")
@@ -41,6 +42,31 @@ def main_menu():
     print("+---------------------------------------+")
     choice = input("Enter your choice: ")
     return choice
+
+
+def player_performance_menu():
+    """Display the Player Performance Queries submenu."""
+    while True:
+        print("+---------------------------------------+")
+        print("| Player Performance Queries            |")
+        print("+---------------------------------------+")
+        print("| 1. Top Scorers (Filter by Season)     |")
+        print("| 2. Penalty Minutes (Filter by Team)   |")
+        print("| 3. Most Game-Winning Goals            |")
+        print("| 4. Player Trends Over Seasons         |")
+        print("| 5. Top Performers by Birth City       |")
+        print("| 6. Back to Main Menu                  |")
+        print("+---------------------------------------+")
+        
+        choice = input("Enter your choice: ")
+
+        if choice == '6':
+            print("Returning to Main Menu...")
+            break
+        elif choice in ['1', '2', '3', '4', '5']:
+            print(f"You selected option {choice}. Feature coming soon!")
+        else:
+            print("Invalid choice. Please select a valid option.")
 
 
 def execute_query(connection, query, parameters=None):
@@ -93,7 +119,9 @@ def main():
 
     while True:
         choice = main_menu()
-        if choice == '5':
+        if choice == '1':
+            player_performance_menu()
+        elif choice == '5':
             list_all_teams(connection)
         elif choice == '6':
             handle_custom_query(connection)
