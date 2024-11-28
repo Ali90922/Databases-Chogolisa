@@ -1,11 +1,13 @@
 import pyodbc
 import configparser
 
+
 def load_config():
     """Load database credentials from auth.config."""
     config = configparser.ConfigParser()
     config.read("auth.config")
     return config["database"]
+
 
 def connect_to_database():
     """Establish a connection to the database using credentials from auth.config."""
@@ -24,6 +26,7 @@ def connect_to_database():
         print("Failed to connect to the database. Error:", e)
         return None
 
+
 def main_menu():
     print("+---------------------------------------+")
     print("| NHL Query Interface                   |")
@@ -32,12 +35,13 @@ def main_menu():
     print("| 2. Team Dynamics Queries              |")
     print("| 3. Game Statistics Queries            |")
     print("| 4. Officiating Trends Queries         |")
-    print("| 5. Custom Query                       |")
-    print("| 6. Help                               |")
+    print("| 5. List All Teams                     |")
+    print("| 6. Custom Query                       |")
     print("| 7. Exit                               |")
     print("+---------------------------------------+")
     choice = input("Enter your choice: ")
     return choice
+
 
 def execute_query(connection, query, parameters=None):
     """Execute a SQL query and print the results."""
@@ -53,6 +57,24 @@ def execute_query(connection, query, parameters=None):
     except Exception as e:
         print("Failed to execute query. Error:", e)
 
+
+def list_all_teams(connection):
+    """List all teams in the database."""
+    query = "SELECT team_id, teamName FROM team_info;"
+    try:
+        cursor = connection.cursor()
+        cursor.execute(query)
+        results = cursor.fetchall()
+        print("+----------------+----------------+")
+        print("| Team ID        | Team Name      |")
+        print("+----------------+----------------+")
+        for row in results:
+            print(f"| {row.team_id:<14} | {row.teamName:<14} |")
+        print("+----------------+----------------+")
+    except Exception as e:
+        print("Failed to execute query. Error:", e)
+
+
 def handle_custom_query(connection):
     """Allow the user to run a custom query."""
     print("Enter your custom SQL query (type 'exit' to return to the main menu):")
@@ -61,6 +83,7 @@ def handle_custom_query(connection):
         if query.lower() == 'exit':
             break
         execute_query(connection, query)
+
 
 def main():
     """Main function to handle the interface."""
@@ -71,6 +94,8 @@ def main():
     while True:
         choice = main_menu()
         if choice == '5':
+            list_all_teams(connection)
+        elif choice == '6':
             handle_custom_query(connection)
         elif choice == '7':
             print("Exiting the program. Goodbye!")
@@ -80,6 +105,6 @@ def main():
 
     connection.close()
 
+
 if __name__ == "__main__":
     main()
-
