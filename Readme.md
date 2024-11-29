@@ -1,6 +1,6 @@
 # Databases-Chogolisa
 
-![Alt text](Chogolisa.jpg)
+![Alt text](Jets.png)
 
 
 # Database Concepts and Design CG 47 - Ali - Rayan - Singh
