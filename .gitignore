@@ -4,5 +4,4 @@ auth.config
 *.sqlite3
 *.csv
 DataSet/
-*.sql
-nhl.sql
+
