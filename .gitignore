@@ -1,3 +1,8 @@
 .DS_STORE
 auth.config
-
+*.sqlite
+*.sqlite3
+*.csv
+DataSet/
+*.sql
+nhl.sql
