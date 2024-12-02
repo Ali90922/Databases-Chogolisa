@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0, "dependencies")  # Add the dependencies folder to the search path
+
 import pymssql
 import configparser
 
