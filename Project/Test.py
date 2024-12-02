@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0, "dependencies")  # Add the dependencies folder to the search path
+
 import pymssql
 
 # Database connection details
@@ -26,4 +29,3 @@ try:
 
 except pymssql.Error as e:
     print("Error connecting to database:", e)
-
