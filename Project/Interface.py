@@ -1,4 +1,7 @@
-import pyodbc
+import sys
+sys.path.insert(0, "dependencies")  # Add the dependencies folder to the search path
+
+import pymssql
 import configparser
 
 
@@ -13,12 +16,11 @@ def connect_to_database():
     """Establish a connection to the database using credentials from auth.config."""
     config = load_config()
     try:
-        connection = pyodbc.connect(
-            f'DRIVER={{ODBC Driver 17 for SQL Server}};'
-            f'SERVER={config["server"]};'
-            f'DATABASE={config["database"]};'
-            f'UID={config["username"]};'
-            f'PWD={config["password"]}'
+        connection = pymssql.connect(
+            server=config["server"],
+            user=config["username"],
+            password=config["password"],
+            database=config["database"]
         )
         print("Connected to the database successfully!")
         return connection
@@ -72,7 +74,7 @@ def player_performance_menu():
 def execute_query(connection, query, parameters=None):
     """Execute a SQL query and print the results."""
     try:
-        cursor = connection.cursor()
+        cursor = connection.cursor(as_dict=True)
         if parameters:
             cursor.execute(query, parameters)
         else:
@@ -88,14 +90,14 @@ def list_all_teams(connection):
     """List all teams in the database."""
     query = "SELECT team_id, teamName FROM team_info;"
     try:
-        cursor = connection.cursor()
+        cursor = connection.cursor(as_dict=True)
         cursor.execute(query)
         results = cursor.fetchall()
         print("+----------------+----------------+")
         print("| Team ID        | Team Name      |")
         print("+----------------+----------------+")
         for row in results:
-            print(f"| {row.team_id:<14} | {row.teamName:<14} |")
+            print(f"| {row['team_id']:<14} | {row['teamName']:<14} |")
         print("+----------------+----------------+")
     except Exception as e:
         print("Failed to execute query. Error:", e)
