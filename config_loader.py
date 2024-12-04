@@ -4,7 +4,7 @@ import configparser
 def load_config():
     """Load database credentials from auth.config."""
     config = configparser.ConfigParser()
-    config.read("auth.config")
+    config.read("populate/auth.config")
     return config["database"]
 
 def connect_to_database():
