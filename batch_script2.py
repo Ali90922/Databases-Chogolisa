@@ -1,6 +1,6 @@
 import subprocess
 subprocess.run(["sqlcmd", "-S", "uranium.cs.umanitoba.ca", "-d", "cs3380", "-U", "nawaza1", "-P", "7951458", "-i", "create-table.sql"], check=True)
-def execute_sql_file(sql_file, server, database, username, password, batch_size=100):
+def execute_sql_file(sql_file, server, database, username, password, batch_size=30000):
     """
     Execute a SQL file in batches using sqlcmd.
 
@@ -62,10 +62,10 @@ def execute_batch(batch_sql, server, database, username, password):
 
 
 # Configuration
-sql_file = "sorted_nhl.sql"  # Path to your sorted SQL file
+sql_file = "sorted_nhl2.sql"  # Path to your sorted SQL file
 server = "uranium.cs.umanitoba.ca"  # Replace with your MSSQL server address
 database = "cs3380"  # Replace with your database name
-username = "nawaza1"  # Replace with your MSSQL username
+username = "singhr62"  # Replace with your MSSQL username
 password = "7951458"  # Replace with your MSSQL password
 
 # Run the script

@@ -4,4 +4,7 @@ auth.config
 *.sqlite3
 *.csv
 DataSet/
+*.sql
+*.zip
+
 
