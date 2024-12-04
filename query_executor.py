@@ -1,12 +1,23 @@
+from prettytable import PrettyTable
+
 def execute_query(connection, query):
-    """Execute a SQL query and print the results."""
+    """Execute a SQL query and print the results in a formatted table."""
     try:
         cursor = connection.cursor(as_dict=True)
         cursor.execute(query)
         results = cursor.fetchall()
 
-        # Print results in a readable format
+        if not results:
+            print("No data found.")
+            return
+
+        # Dynamically create a table with column names from query results
+        table = PrettyTable()
+        table.field_names = results[0].keys()  # Column names are the keys of the first row
+
         for row in results:
-            print(row)
+            table.add_row(row.values())  # Add row values to the table
+
+        print(table)
     except Exception as e:
         print("Failed to execute query. Error:", e)
