@@ -1,3 +1,5 @@
+from prettytable import PrettyTable
+
 def execute_query(connection, query, parameters=()):
     """Execute a parameterized SQL query and print the results."""
     try:
