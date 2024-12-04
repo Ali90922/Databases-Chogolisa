@@ -1,5 +1,6 @@
 from query_executor import execute_query
 
+
 def general_stats_menu(connection):
     """Display the General Stats submenu and execute queries with prepared statements."""
     while True:
@@ -191,6 +192,86 @@ def general_stats_menu(connection):
             print("Invalid choice. Please select a valid option.")
 
 
+
+
+def advanced_search_menu(connection):
+    """Display the Advanced Search Menu."""
+    while True:
+        print("+---------------------------------------+")
+        print("| Advanced Search                      |")
+        print("+---------------------------------------+")
+
+        # Step 1: List all teams
+        query_teams = """
+        SELECT 
+            team_id, 
+            teamName 
+        FROM 
+            team_info
+        ORDER BY 
+            teamName ASC;
+        """
+        print("Fetching list of teams...")
+        execute_query(connection, query_teams)
+
+        # Step 2: Choose a team
+        team_id = input("Enter the Team ID to view its players (or type 'back' to return): ").strip()
+        if team_id.lower() == 'back':
+            break
+
+        # Step 3: List players for the selected team
+        query_players = """
+        SELECT 
+            pi.player_id, 
+            CONCAT(pi.firstName, ' ', pi.lastName) AS fullName
+        FROM 
+            player_info pi
+        JOIN 
+            game_skater_stats gss ON pi.player_id = gss.player_id
+        WHERE 
+            gss.team_id = %s
+        GROUP BY 
+            pi.player_id, pi.firstName, pi.lastName
+        ORDER BY 
+            fullName ASC;
+        """
+        print(f"Fetching players for Team ID: {team_id}")
+        execute_query(connection, query_players, parameters=(team_id,))
+
+        # Step 4: Choose a player
+        player_id = input("Enter the Player ID to view stats (or type 'back' to return): ").strip()
+        if player_id.lower() == 'back':
+            continue
+
+        # Step 5: Show aggregated season stats for the player
+        query_player_stats = """
+        SELECT 
+            g.season,
+            SUM(gss.goals) AS total_goals,
+            SUM(gss.assists) AS total_assists,
+            SUM(gss.shots) AS total_shots,
+            SUM(gss.hits) AS total_hits,
+            SUM(gss.penaltyMinutes) AS total_penalty_minutes,
+            SUM(gss.powerPlayGoals) AS power_play_goals,
+            SUM(gss.shortHandedGoals) AS short_handed_goals,
+            SUM(gss.takeaways) AS total_takeaways,
+            SUM(gss.giveaways) AS total_giveaways
+        FROM 
+            game_skater_stats gss
+        JOIN 
+            game g ON gss.game_id = g.game_id
+        WHERE 
+            gss.player_id = %s
+        GROUP BY 
+            g.season
+        ORDER BY 
+            g.season DESC;
+        """
+        print(f"Fetching aggregated season stats for Player ID: {player_id}")
+        execute_query(connection, query_player_stats, parameters=(player_id,))
+        print("\nReturning to Advanced Search Menu...\n")
+
+
 def player_performance_menu(connection):
     """Display the Player Performance Queries submenu."""
     while True:
@@ -198,15 +279,18 @@ def player_performance_menu(connection):
         print("| Player Performance Queries            |")
         print("+---------------------------------------+")
         print("| 1. General Stats                      |")
-        print("| 2. Back to Main Menu                  |")
+        print("| 2. Advanced Search                    |")
+        print("| 3. Back to Main Menu                  |")
         print("+---------------------------------------+")
         
         choice = input("Enter your choice: ")
 
-        if choice == '2':
+        if choice == '3':
             print("Returning to Main Menu...")
             break
         elif choice == '1':
             general_stats_menu(connection)
+        elif choice == '2':
+            advanced_search_menu(connection)  # Call Advanced Search Menu
         else:
             print("Invalid choice. Please select a valid option.")
