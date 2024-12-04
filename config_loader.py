@@ -1,5 +1,9 @@
-import pymssql
+
+import sys
+sys.path.insert(0, "dependencies")  # Add the dependencies folder to the search path
+
 import configparser
+import pymssql
 
 def load_config():
     """Load database credentials from auth.config."""
@@ -22,4 +26,3 @@ def connect_to_database():
     except Exception as e:
         print("Failed to connect to the database. Error:", e)
         return None
-
