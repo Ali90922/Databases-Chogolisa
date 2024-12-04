@@ -1,5 +1,6 @@
 import subprocess
-subprocess.run(["sqlcmd", "-S", "uranium.cs.umanitoba.ca", "-d", "cs3380", "-U", "", "-P", "", "-i", "create-table.sql"], check=True)
+import configparser
+
 def execute_sql_file(sql_file, server, database, username, password, batch_size=30000):
     """
     Execute a SQL file in batches using sqlcmd.
@@ -8,7 +9,7 @@ def execute_sql_file(sql_file, server, database, username, password, batch_size=
     :param database: Target database name.
     :param username: Username for MSSQL authentication.
     :param password: Password for MSSQL authentication.
-    :param batch_size: Number of lines to execute per batch (default: 100).
+    :param batch_size: Number of lines to execute per batch (default: 30000).
     """
     try:
         # Read the SQL file content
@@ -26,6 +27,7 @@ def execute_sql_file(sql_file, server, database, username, password, batch_size=
         print("SQL file executed successfully.")
     except Exception as e:
         print(f"Error while executing the SQL file: {e}")
+
 def execute_batch(batch_sql, server, database, username, password):
     """
     Execute a single batch of SQL commands using sqlcmd.
@@ -51,11 +53,24 @@ def execute_batch(batch_sql, server, database, username, password):
     # Execute the command
     subprocess.run(command, check=True)
     print("Batch executed successfully.")
+
+def load_credentials(config_file):
+    """
+    Load database credentials from a config file.
+    :param config_file: Path to the config file.
+    :return: Dictionary containing server, database, username, and password.
+    """
+    config = configparser.ConfigParser()
+    config.read(config_file)
+    db_config = config["database"]
+    return db_config["server"], db_config["database"], db_config["username"], db_config["password"]
+
 # Configuration
+config_file = "auth.config"  # Path to your config file
 sql_file = "ordered_inserts.sql"  # Path to your sorted SQL file
-server = "uranium.cs.umanitoba.ca"  # Replace with your MSSQL server address
-database = "cs3380"   # Replace with your database name
-username = ""  # Replace with your MSSQL username
-password = ""  # Replace with your MSSQL password
+
+# Load credentials from the config file
+server, database, username, password = load_credentials(config_file)
+
 # Run the script
 execute_sql_file(sql_file, server, database, username, password)
