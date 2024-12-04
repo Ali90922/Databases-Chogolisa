@@ -4,8 +4,8 @@ def main_menu():
     print("| NHL Query Interface                   |")
     print("+---------------------------------------+")
     print("| 1. Player Performance Queries         |")
-    print("| 2. Team Performance Queries           |")  # Updated here
-    print("| 3. Game Statistics Queries            |")
+    print("| 2. Team Performance Queries           |")
+    print("| 3. Game Statistics Queries            |")  # Updated here
     print("| 4. Officiating Trends Queries         |")
     print("| 5. List All Teams                     |")
     print("| 6. Custom Query                       |")
