@@ -1,10 +1,8 @@
-from prettytable import PrettyTable
-
-def execute_query(connection, query):
-    """Execute a SQL query and print the results in a formatted table."""
+def execute_query(connection, query, parameters=()):
+    """Execute a parameterized SQL query and print the results."""
     try:
         cursor = connection.cursor(as_dict=True)
-        cursor.execute(query)
+        cursor.execute(query, parameters)
         results = cursor.fetchall()
 
         if not results:
