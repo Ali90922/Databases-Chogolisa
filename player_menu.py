@@ -1,7 +1,7 @@
 from query_executor import execute_query
 
 def general_stats_menu(connection):
-    """Display the General Stats submenu and execute queries."""
+    """Display the General Stats submenu and execute queries with prepared statements."""
     while True:
         print("+---------------------------------------+")
         print("| General Stats Queries                 |")
@@ -24,8 +24,9 @@ def general_stats_menu(connection):
             print("Returning to Player Performance Menu...")
             break
 
+        # Mapping of queries
         queries = [
-            # Top Scorers
+            # 1. Top Scorers
             """
             SELECT TOP 10
                 pi.firstName, 
@@ -42,7 +43,7 @@ def general_stats_menu(connection):
             ORDER BY 
                 total_goals DESC;
             """,
-            # Most Penalty Minutes by Team
+            # 2. Most Penalty Minutes by Team
             """
             SELECT TOP 10
                 ti.teamName,
@@ -60,7 +61,7 @@ def general_stats_menu(connection):
             ORDER BY 
                 total_penalty_minutes DESC;
             """,
-            # Most Game-Winning Goals
+            # 3. Most Game-Winning Goals
             """
             SELECT TOP 10
                 pi.firstName,
@@ -79,7 +80,7 @@ def general_stats_menu(connection):
             ORDER BY 
                 game_winning_goals DESC;
             """,
-            # Top Performers by Birth City
+            # 4. Top Performers by Birth City
             """
             SELECT TOP 10
                 pi.birthCity,
@@ -97,7 +98,7 @@ def general_stats_menu(connection):
             ORDER BY 
                 total_goals DESC;
             """,
-            # Most Assists in Power Play
+            # 5. Most Assists in Power Play
             """
             SELECT TOP 10
                 pi.firstName,
@@ -112,7 +113,7 @@ def general_stats_menu(connection):
             ORDER BY 
                 total_power_play_assists DESC;
             """,
-            # Best Face-Off Win Percentage
+            # 6. Best Face-Off Win Percentage
             """
             SELECT TOP 10
                 pi.firstName,
@@ -131,7 +132,7 @@ def general_stats_menu(connection):
             ORDER BY 
                 win_percentage DESC;
             """,
-            # Most Time on Ice
+            # 7. Most Time on Ice
             """
             SELECT TOP 10
                 pi.firstName,
@@ -146,7 +147,7 @@ def general_stats_menu(connection):
             ORDER BY 
                 total_time_on_ice DESC;
             """,
-            # Best Save Percentage
+            # 8. Best Save Percentage
             """
             SELECT TOP 10
                 pi.firstName,
@@ -165,7 +166,7 @@ def general_stats_menu(connection):
             ORDER BY 
                 save_percentage DESC;
             """,
-            # Most Takeaways
+            # 9. Most Takeaways
             """
             SELECT TOP 10
                 pi.firstName,
@@ -182,11 +183,13 @@ def general_stats_menu(connection):
             """
         ]
 
+        # Validate and execute the selected query
         if choice.isdigit() and 1 <= int(choice) <= 9:
             query = queries[int(choice) - 1]
-            execute_query(connection, query)
+            execute_query(connection, query, parameters=())  # No parameters are passed in these queries
         else:
             print("Invalid choice. Please select a valid option.")
+
 
 def player_performance_menu(connection):
     """Display the Player Performance Queries submenu."""
