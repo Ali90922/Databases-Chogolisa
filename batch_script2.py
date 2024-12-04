@@ -1,4 +1,12 @@
+import configparser
 import subprocess
+
+def load_config():
+    """Load database credentials from auth.config."""
+    config = configparser.ConfigParser()
+    config.read("\Project\auth.config")
+    return config["database"]
+
 subprocess.run(["sqlcmd", "-S", "uranium.cs.umanitoba.ca", "-d", "cs3380", "-U", "nawaza1", "-P", "7951458", "-i", "create-table.sql"], check=True)
 def execute_sql_file(sql_file, server, database, username, password, batch_size=30000):
     """
@@ -61,12 +69,13 @@ def execute_batch(batch_sql, server, database, username, password):
     print("Batch executed successfully.")
 
 
-# Configuration
+# Load configuration
+config = load_config()
 sql_file = "sorted_nhl2.sql"  # Path to your sorted SQL file
-server = "uranium.cs.umanitoba.ca"  # Replace with your MSSQL server address
-database = "cs3380"  # Replace with your database name
-username = "singhr62"  # Replace with your MSSQL username
-password = "7951458"  # Replace with your MSSQL password
+server = config["server"]
+database = config["database"]
+username = config["username"]
+password = config["password"]
 
 # Run the script
 execute_sql_file(sql_file, server, database, username, password)
