@@ -24,9 +24,9 @@ def execute_sql_file(sql_file, server, database, username, password, batch_size=
                 batch_sql = "".join(batch)
                 execute_batch(batch_sql, server, database, username, password)
                 batch = []  # Clear the batch after execution
-        print("SQL file executed successfully.")
+        print(f"{sql_file} executed successfully.")
     except Exception as e:
-        print(f"Error while executing the SQL file: {e}")
+        print(f"Error while executing {sql_file}: {e}")
 
 def execute_batch(batch_sql, server, database, username, password):
     """
@@ -51,8 +51,16 @@ def execute_batch(batch_sql, server, database, username, password):
         "-i", temp_file
     ]
     # Execute the command
-    subprocess.run(command, check=True)
-    print("Batch executed successfully.")
+    try:
+        subprocess.run(command, check=True)
+        print("Batch executed successfully.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error while executing batch: {e}")
+    finally:
+        # Clean up the temporary file
+        import os
+        if os.path.exists(temp_file):
+            os.remove(temp_file)
 
 def load_credentials(config_file):
     """
@@ -67,10 +75,16 @@ def load_credentials(config_file):
 
 # Configuration
 config_file = "auth.config"  # Path to your config file
-sql_file = "ordered_inserts.sql"  # Path to your sorted SQL file
+
+# SQL file paths
+drop_sql_file = "drop.sql"  # Path to your DROP script
+create_table_sql_file = "create_table.sql"  # Path to your CREATE TABLE script
 
 # Load credentials from the config file
 server, database, username, password = load_credentials(config_file)
 
-# Run the script
-execute_sql_file(sql_file, server, database, username, password)
+# Execute the DROP script first
+execute_sql_file(drop_sql_file, server, database, username, password)
+
+# Then execute the CREATE TABLE script
+execute_sql_file(create_table_sql_file, server, database, username, password)
