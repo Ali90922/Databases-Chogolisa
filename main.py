@@ -1,6 +1,7 @@
+from team_performance import team_performance_menu
+from player_menu import player_performance_menu
 from config_loader import connect_to_database
 from main_menu import main_menu
-from player_menu import player_performance_menu
 
 def main():
     """Main function to handle the interface."""
@@ -13,6 +14,8 @@ def main():
         choice = main_menu()
         if choice == '1':
             player_performance_menu(connection)
+        elif choice == '2':
+            team_performance_menu(connection)  # New menu
         elif choice == '7':  # Exit
             print("Exiting the program. Goodbye!")
             break
