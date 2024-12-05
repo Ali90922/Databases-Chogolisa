@@ -1,101 +1,90 @@
-from query_executor import execute_query
 from prettytable import PrettyTable
 
 def event_statistics_menu(connection):
     """Handle Event Statistics Queries."""
-    while True:
-        print("\n+-----------------------------------+")
-        print("| Event Statistics Queries          |")
-        print("+-----------------------------------+")
-        print("1. List all events for a specific game")
-        print("2. Count the number of events per game")
-        print("3. Find events by type (e.g., goals, penalties)")
-        print("4. Return to Main Menu")
-        choice = input("Enter your choice: ")
+    try:
+        # Step 1: Display all teams
+        print("\nDisplaying all teams:")
+        query_teams = """
+            SELECT team_id, teamName
+            FROM team_info
+            ORDER BY teamName ASC;
+        """
+        cursor = connection.cursor(as_dict=True)
+        cursor.execute(query_teams)
+        teams = cursor.fetchall()
 
-        if choice == '1':  # List all events for a specific game
-            game_id = input("Enter the Game ID: ")
-            query = """
-                SELECT play_id, event, period, periodTime 
-                FROM Event 
-                WHERE game_id = %s
-                ORDER BY period, periodTime;
-            """
-            try:
-                cursor = connection.cursor(as_dict=True)
-                cursor.execute(query, (game_id,))
-                results = cursor.fetchall()
+        if not teams:
+            print("No teams found in the database.")
+            return
 
-                if not results:
-                    print(f"No events found for game ID: {game_id}.")
-                    continue
+        # Display teams in a table
+        table_teams = PrettyTable()
+        table_teams.field_names = ["Number", "Team ID", "Team Name"]
+        for i, team in enumerate(teams, start=1):
+            table_teams.add_row([i, team["team_id"], team["teamName"]])
+        print(table_teams)
 
-                # Display events in a table
-                table = PrettyTable()
-                table.field_names = ["play_id", "event", "period", "periodTime"]
-                for row in results:
-                    table.add_row([row["play_id"], row["event"], row["period"], row["periodTime"]])
-                print(table)
+        # Step 2: User selects a team
+        team_number = int(input("\nSelect a team by entering the corresponding number: "))
+        if team_number < 1 or team_number > len(teams):
+            print("Invalid selection. Please try again.")
+            return
+        selected_team_id = teams[team_number - 1]["team_id"]
 
-            except Exception as e:
-                print(f"Failed to execute query. Error: {e}")
+        # Step 3: Display all games for the selected team
+        print(f"\nDisplaying all games for team ID: {selected_team_id}")
+        query_games = """
+            SELECT g.game_id, g.date_time_GMT, g.outcome, g.type
+            FROM game g
+            JOIN game_teams_stats gts ON g.game_id = gts.game_id
+            WHERE gts.team_id = %s
+            ORDER BY g.date_time_GMT DESC;
+        """
+        cursor.execute(query_games, (selected_team_id,))
+        games = cursor.fetchall()
 
-        elif choice == '2':  # Count the number of events per game
-            query = """
-                SELECT game_id, COUNT(play_id) AS event_count
-                FROM Event
-                GROUP BY game_id
-                ORDER BY event_count DESC;
-            """
-            try:
-                cursor = connection.cursor(as_dict=True)
-                cursor.execute(query)
-                results = cursor.fetchall()
+        if not games:
+            print(f"No games found for team ID: {selected_team_id}.")
+            return
 
-                if not results:
-                    print("No events found.")
-                    continue
+        # Display games in a table
+        table_games = PrettyTable()
+        table_games.field_names = ["Game ID", "Date & Time (GMT)", "Outcome", "Type"]
+        for game in games:
+            table_games.add_row([game["game_id"], game["date_time_GMT"], game["outcome"], game["type"]])
+        print(table_games)
 
-                # Display event counts in a table
-                table = PrettyTable()
-                table.field_names = ["game_id", "event_count"]
-                for row in results:
-                    table.add_row([row["game_id"], row["event_count"]])
-                print(table)
+        # Step 4: User selects a game
+        selected_game_id = input("\nEnter the Game ID to view events: ")
 
-            except Exception as e:
-                print(f"Failed to execute query. Error: {e}")
+        # Step 5: User inputs a period
+        selected_period = int(input("\nEnter the period (1, 2, or 3): "))
+        if selected_period not in [1, 2, 3]:
+            print("Invalid period. Please enter 1, 2, or 3.")
+            return
 
-        elif choice == '3':  # Find events by type (e.g., goals, penalties)
-            event_type = input("Enter the event type (e.g., Goal, Penalty): ")
-            query = """
-                SELECT play_id, game_id, period, periodTime
-                FROM Event
-                WHERE event = %s
-                ORDER BY game_id, period, periodTime;
-            """
-            try:
-                cursor = connection.cursor(as_dict=True)
-                cursor.execute(query, (event_type,))
-                results = cursor.fetchall()
+        # Step 6: Query and display events for the selected game and period
+        print(f"\nDisplaying events for game ID: {selected_game_id}, period: {selected_period}")
+        query_events = """
+            SELECT play_id, event, periodTime
+            FROM Event
+            WHERE game_id = %s AND period = %s
+            ORDER BY periodTime;
+        """
+        cursor.execute(query_events, (selected_game_id, selected_period))
+        events = cursor.fetchall()
 
-                if not results:
-                    print(f"No events of type '{event_type}' found.")
-                    continue
+        if not events:
+            print(f"No events found for game ID: {selected_game_id} in period {selected_period}.")
+            return
 
-                # Display events of the specified type in a table
-                table = PrettyTable()
-                table.field_names = ["play_id", "game_id", "period", "periodTime"]
-                for row in results:
-                    table.add_row([row["play_id"], row["game_id"], row["period"], row["periodTime"]])
-                print(table)
+        # Display events in a table
+        table_events = PrettyTable()
+        table_events.field_names = ["Play ID", "Event", "Period Time"]
+        for event in events:
+            table_events.add_row([event["play_id"], event["event"], event["periodTime"]])
+        print(table_events)
 
-            except Exception as e:
-                print(f"Failed to execute query. Error: {e}")
-
-        elif choice == '4':  # Return to Main Menu
-            print("Returning to Main Menu...")
-            break
-
-        else:
-            print("Invalid choice. Please try again.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
