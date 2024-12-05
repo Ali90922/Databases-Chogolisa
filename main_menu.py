@@ -8,9 +8,8 @@ def main_menu():
     print("| 3. Game Statistics Queries            |")
     print("| 4. Event Statistics Queries           |")
     print("| 5. List All Teams                     |")
-    print("| 6. Custom Query                       |")
-    print("| 7. Season Rankings                    |")  # New option added
-    print("| 8. Exit                               |")
+    print("| 6. Season Rankings                    |")  # Updated numbering for rankings
+    print("| 7. Exit                               |")
     print("+---------------------------------------+")
     choice = input("Enter your choice: ")
     return choice
