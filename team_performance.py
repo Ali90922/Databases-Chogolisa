@@ -10,12 +10,15 @@ def team_performance_menu(connection):
         print("| 2. Teams with Best Defense            |")
         print("| 3. Teams with Most Penalty Minutes    |")
         print("| 4. Teams with Best Power Play         |")
-        print("| 5. Back to Main Menu                  |")
+        print("| 5. Teams with Best Faceoff Win Rate   |")
+        print("| 6. Teams with Most Hits               |")
+        print("| 7. Teams with Most Shutouts           |")
+        print("| 8. Back to Main Menu                  |")
         print("+---------------------------------------+")
 
         choice = input("Enter your choice: ")
 
-        if choice == '5':
+        if choice == '8':
             print("Returning to Main Menu...")
             break
 
@@ -79,11 +82,55 @@ def team_performance_menu(connection):
                 ti.teamName
             ORDER BY 
                 power_play_percentage DESC;
+            """,
+            # 5. Teams with Best Faceoff Win Rate
+            """
+            SELECT 
+                ti.teamName, 
+                AVG(gts.faceOffWinPercentage) AS average_faceoff_win_rate
+            FROM 
+                game_teams_stats gts
+            JOIN 
+                team_info ti ON gts.team_id = ti.team_id
+            GROUP BY 
+                ti.teamName
+            ORDER BY 
+                average_faceoff_win_rate DESC;
+            """,
+            # 6. Teams with Most Hits
+            """
+            SELECT 
+                ti.teamName, 
+                SUM(gts.hits) AS total_hits
+            FROM 
+                game_teams_stats gts
+            JOIN 
+                team_info ti ON gts.team_id = ti.team_id
+            GROUP BY 
+                ti.teamName
+            ORDER BY 
+                total_hits DESC;
+            """,
+            # 7. Teams with Most Shutouts
+            """
+            SELECT 
+                ti.teamName, 
+                COUNT(*) AS total_shutouts
+            FROM 
+                game_goalie_stats ggs
+            JOIN 
+                team_info ti ON ggs.team_id = ti.team_id
+            WHERE 
+                ggs.goals = 0
+            GROUP BY 
+                ti.teamName
+            ORDER BY 
+                total_shutouts DESC;
             """
         ]
 
-        # Validate and execute the selected query
-        if choice.isdigit() and 1 <= int(choice) <= 4:
+        # Validate and execute the selected query using prepared statements
+        if choice.isdigit() and 1 <= int(choice) <= 7:
             query = queries[int(choice) - 1]
             execute_query(connection, query)
         else:
