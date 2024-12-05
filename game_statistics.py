@@ -1,4 +1,5 @@
 from query_executor import execute_query
+from prettytable import PrettyTable
 
 
 def game_statistics_menu(connection):
