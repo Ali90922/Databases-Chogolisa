@@ -23,7 +23,7 @@ def main():
         elif choice == '3':  # Game Statistics Queries
             game_statistics_menu(connection)
         elif choice == '4':  # Officiating Trends Queries (Placeholder)
-            event_statistics(menu)
+            event_statistics_menu(menu)
         elif choice == '5':  # List All Teams
             query = "SELECT team_id, teamName FROM team_info ORDER BY teamName ASC;"
             from query_executor import execute_query
