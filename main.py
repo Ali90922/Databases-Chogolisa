@@ -59,12 +59,9 @@ def main():
         elif choice == '5':  # List All Teams
             query = "SELECT team_id, teamName FROM team_info ORDER BY teamName ASC;"
             execute_query(connection, query)
-        elif choice == '6':  # Custom Query
-            from custom_query import handle_custom_query
-            handle_custom_query(connection)
-        elif choice == '7':  # Season Rankings
+        elif choice == '6':  # Season Rankings
             season_rankings(connection)
-        elif choice == '8':  # Exit
+        elif choice == '7':  # Exit
             print("Exiting the program. Goodbye!")
             break
         else:
@@ -72,7 +69,6 @@ def main():
 
     # Close the database connection
     connection.close()
-
 
 if __name__ == "__main__":
     main()
