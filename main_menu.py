@@ -5,8 +5,8 @@ def main_menu():
     print("+---------------------------------------+")
     print("| 1. Player Performance Queries         |")
     print("| 2. Team Performance Queries           |")
-    print("| 3. Game Statistics Queries            |")  # Updated here
-    print("| 4. Officiating Trends Queries         |")
+    print("| 3. Game Statistics Queries            |")
+    print("| 4. Event Statistics Queries           |")
     print("| 5. List All Teams                     |")
     print("| 6. Custom Query                       |")
     print("| 7. Exit                               |")
