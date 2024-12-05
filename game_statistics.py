@@ -1,15 +1,16 @@
 from query_executor import execute_query
 
+
 def game_statistics_menu(connection):
     """Display the Game Statistics Queries submenu."""
     while True:
         print("+---------------------------------------+")
         print("| Game Statistics Queries               |")
         print("+---------------------------------------+")
-        print("| 1. Highest Scoring Games              |")
-        print("| 2. Games with Most Penalty Minutes    |")
-        print("| 3. Closest Games (Smallest Margin)    |")
-        print("| 4. Longest Games by Duration          |")
+        print("| 1. Top Games with Highest Total Shots |")
+        print("| 2. Games with Most Hits Combined      |")
+        print("| 3. Games with Most Power Play Chances |")
+        print("| 4. Most One-Sided Wins                |")
         print("| 5. Back to Main Menu                  |")
         print("+---------------------------------------+")
 
@@ -20,12 +21,12 @@ def game_statistics_menu(connection):
             break
 
         queries = [
-            # 1. Highest Scoring Games
+            # 1. Top Games with Highest Total Shots
             """
             SELECT TOP 10
                 g.game_id,
                 g.date_time_GMT,
-                (gts_away.goals + gts_home.goals) AS total_goals,
+                (gts_away.shots + gts_home.shots) AS total_shots,
                 ti_away.teamName AS away_team,
                 ti_home.teamName AS home_team
             FROM 
@@ -39,14 +40,14 @@ def game_statistics_menu(connection):
             JOIN 
                 team_info ti_home ON gts_home.team_id = ti_home.team_id
             ORDER BY 
-                total_goals DESC;
+                total_shots DESC;
             """,
-            # 2. Games with Most Penalty Minutes
+            # 2. Games with Most Hits Combined
             """
             SELECT TOP 10
                 g.game_id,
                 g.date_time_GMT,
-                (gts_away.pim + gts_home.pim) AS total_penalty_minutes,
+                (gts_away.hits + gts_home.hits) AS total_hits,
                 ti_away.teamName AS away_team,
                 ti_home.teamName AS home_team
             FROM 
@@ -60,14 +61,14 @@ def game_statistics_menu(connection):
             JOIN 
                 team_info ti_home ON gts_home.team_id = ti_home.team_id
             ORDER BY 
-                total_penalty_minutes DESC;
+                total_hits DESC;
             """,
-            # 3. Closest Games (Smallest Margin)
+            # 3. Games with Most Power Play Opportunities
             """
             SELECT TOP 10
                 g.game_id,
                 g.date_time_GMT,
-                ABS(gts_away.goals - gts_home.goals) AS goal_margin,
+                (gts_away.powerPlayOpportunities + gts_home.powerPlayOpportunities) AS total_power_play_opportunities,
                 ti_away.teamName AS away_team,
                 ti_home.teamName AS home_team
             FROM 
@@ -81,24 +82,28 @@ def game_statistics_menu(connection):
             JOIN 
                 team_info ti_home ON gts_home.team_id = ti_home.team_id
             ORDER BY 
-                goal_margin ASC, g.date_time_GMT DESC;
+                total_power_play_opportunities DESC;
             """,
-            # 4. Longest Games by Duration
+            # 4. Most One-Sided Wins
             """
             SELECT TOP 10
                 g.game_id,
                 g.date_time_GMT,
-                DATEDIFF(SECOND, g.date_time_GMT, DATEADD(MINUTE, g.duration_minutes, g.date_time_GMT)) AS game_duration_seconds,
+                ABS(gts_away.goals - gts_home.goals) AS goal_difference,
                 ti_away.teamName AS away_team,
                 ti_home.teamName AS home_team
             FROM 
                 game g
             JOIN 
-                team_info ti_away ON g.away_team_id = ti_away.team_id
+                game_teams_stats gts_away ON g.game_id = gts_away.game_id AND gts_away.HoA = 'away'
             JOIN 
-                team_info ti_home ON g.home_team_id = ti_home.team_id
+                game_teams_stats gts_home ON g.game_id = gts_home.game_id AND gts_home.HoA = 'home'
+            JOIN 
+                team_info ti_away ON gts_away.team_id = ti_away.team_id
+            JOIN 
+                team_info ti_home ON gts_home.team_id = ti_home.team_id
             ORDER BY 
-                game_duration_seconds DESC;
+                goal_difference DESC;
             """
         ]
 
