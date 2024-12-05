@@ -1,20 +1,36 @@
-import subprocess
+import sys
+import pymssql
 import configparser
+import logging
+import sys
+import os
 
-def execute_sql_file(sql_file, server, database, username, password, batch_size=30000):
+# Add the dependencies folder to the Python path
+dependencies_path = r"D:\Courses\COMP3380\PROJECT\Databases-Chogolisa\dependencies"
+if os.path.isdir(dependencies_path):
+    sys.path.insert(0, dependencies_path)
+else:
+    raise RuntimeError(f"Dependencies folder not found at: {dependencies_path}")
+
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+
+def execute_sql_file(sql_file, connection, batch_size=30000):
     """
-    Execute a SQL file in batches using sqlcmd.
+    Execute a SQL file in batches using pymssql.
     :param sql_file: Path to the SQL file.
-    :param server: MSSQL server address.
-    :param database: Target database name.
-    :param username: Username for MSSQL authentication.
-    :param password: Password for MSSQL authentication.
+    :param connection: pymssql connection object.
     :param batch_size: Number of lines to execute per batch (default: 30000).
     """
     try:
         # Read the SQL file content
         with open(sql_file, "r") as file:
             sql_content = file.readlines()
+
         # Split the SQL content into batches
         batch = []
         for i, line in enumerate(sql_content):
@@ -22,45 +38,29 @@ def execute_sql_file(sql_file, server, database, username, password, batch_size=
             # If batch size is reached or it's the last line, execute the batch
             if (i + 1) % batch_size == 0 or i == len(sql_content) - 1:
                 batch_sql = "".join(batch)
-                execute_batch(batch_sql, server, database, username, password)
+                execute_batch(batch_sql, connection)
                 batch = []  # Clear the batch after execution
-        print(f"{sql_file} executed successfully.")
-    except Exception as e:
-        print(f"Error while executing {sql_file}: {e}")
 
-def execute_batch(batch_sql, server, database, username, password):
+        logging.info(f"{sql_file} executed successfully.")
+    except FileNotFoundError:
+        logging.error(f"SQL file not found: {sql_file}")
+    except Exception as e:
+        logging.error(f"Error while executing {sql_file}: {e}")
+
+def execute_batch(batch_sql, connection):
     """
-    Execute a single batch of SQL commands using sqlcmd.
+    Execute a single batch of SQL commands using pymssql.
     :param batch_sql: SQL commands as a string.
-    :param server: MSSQL server address.
-    :param database: Target database name.
-    :param username: Username for MSSQL authentication.
-    :param password: Password for MSSQL authentication.
+    :param connection: pymssql connection object.
     """
-    # Write the batch SQL to a temporary file
-    temp_file = "temp_batch.sql"
-    with open(temp_file, "w") as temp:
-        temp.write(batch_sql)
-    # Construct the sqlcmd command
-    command = [
-        "sqlcmd",
-        "-S", server,
-        "-d", database,
-        "-U", username,
-        "-P", password,
-        "-i", temp_file
-    ]
-    # Execute the command
     try:
-        subprocess.run(command, check=True)
-        print("Batch executed successfully.")
-    except subprocess.CalledProcessError as e:
-        print(f"Error while executing batch: {e}")
-    finally:
-        # Clean up the temporary file
-        import os
-        if os.path.exists(temp_file):
-            os.remove(temp_file)
+        with connection.cursor() as cursor:
+            cursor.execute(batch_sql)
+            connection.commit()
+            logging.info("Batch executed successfully.")
+    except Exception as e:
+        logging.error(f"Error while executing batch: {e}")
+        connection.rollback()
 
 def load_credentials(config_file):
     """
@@ -68,27 +68,37 @@ def load_credentials(config_file):
     :param config_file: Path to the config file.
     :return: Dictionary containing server, database, username, and password.
     """
-    config = configparser.ConfigParser()
-    config.read(config_file)
-    db_config = config["database"]
-    return db_config["server"], db_config["database"], db_config["username"], db_config["password"]
+    try:
+        config = configparser.ConfigParser()
+        config.read(config_file)
+        db_config = config["database"]
+        return db_config["server"], db_config["database"], db_config["username"], db_config["password"]
+    except KeyError as e:
+        logging.error(f"Missing configuration key: {e}")
+        raise
+    except Exception as e:
+        logging.error(f"Error loading configuration file: {e}")
+        raise
 
-# Configuration
-config_file = "auth.config"  # Path to your config file
+if __name__ == "__main__":
+    # Configuration
+    config_file = "auth.config"
 
-# SQL file paths
-drop_sql_file = "drop.sql"  # Path to your DROP script
-create_table_sql_file = "create_table.sql"  # Path to your CREATE TABLE script
-insert_sql_file = "ordered_inserts.sql"  # Path to your INSERT script
+    # SQL file paths
+    drop_sql_file = "drop.sql"
+    create_table_sql_file = "create_table.sql"
+    insert_sql_file = "ordered_inserts.sql"
 
-# Load credentials from the config file
-server, database, username, password = load_credentials(config_file)
+    # Load credentials
+    try:
+        server, database, username, password = load_credentials(config_file)
 
-# Execute the DROP script first
-execute_sql_file(drop_sql_file, server, database, username, password)
+        # Connect to the database
+        with pymssql.connect(server, username, password, database) as connection:
+            # Execute the scripts
+            execute_sql_file(drop_sql_file, connection)
+            execute_sql_file(create_table_sql_file, connection)
+            execute_sql_file(insert_sql_file, connection)
 
-# Execute the CREATE TABLE script
-execute_sql_file(create_table_sql_file, server, database, username, password)
-
-# Execute the INSERT script
-execute_sql_file(insert_sql_file, server, database, username, password)
+    except Exception as e:
+        logging.error(f"Script execution failed: {e}")
