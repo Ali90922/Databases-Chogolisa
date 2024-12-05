@@ -1,3 +1,9 @@
+
+
+import sys
+sys.path.insert(0, "dependencies")  # Add the dependencies folder to the search path
+
+
 from prettytable import PrettyTable
 
 def execute_query(connection, query, parameters=()):
