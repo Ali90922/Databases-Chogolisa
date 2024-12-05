@@ -40,7 +40,6 @@ def season_rankings(connection):
 
 
 
-from query_executor import execute_query
 
 def scratches_stats_menu(connection):
     """Display the Scratches Stats submenu and execute related queries."""
@@ -61,7 +60,7 @@ def scratches_stats_menu(connection):
             print("Returning to Main Menu...")
             break
 
-        # Queries for each menu option
+        # Corrected queries
         queries = [
             # 1. Total Scratches by Team
             """
@@ -79,7 +78,7 @@ def scratches_stats_menu(connection):
             """,
             # 2. Most Scratched Players
             """
-            SELECT 
+            SELECT TOP 10
                 pi.firstName AS first_name, 
                 pi.lastName AS last_name, 
                 COUNT(gs.game_id) AS times_scratched
@@ -90,12 +89,11 @@ def scratches_stats_menu(connection):
             GROUP BY 
                 pi.player_id, pi.firstName, pi.lastName
             ORDER BY 
-                times_scratched DESC
-            LIMIT 10;
+                times_scratched DESC;
             """,
             # 3. Games with the Highest Scratches
             """
-            SELECT 
+            SELECT TOP 10
                 g.game_id, 
                 g.date_time_GMT AS game_date, 
                 COUNT(gs.player_id) AS total_scratches
@@ -106,8 +104,7 @@ def scratches_stats_menu(connection):
             GROUP BY 
                 g.game_id, g.date_time_GMT
             ORDER BY 
-                total_scratches DESC
-            LIMIT 10;
+                total_scratches DESC;
             """,
             # 4. Scratches by Position
             """
