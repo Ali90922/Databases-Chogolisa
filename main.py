@@ -3,7 +3,7 @@ from team_performance_menu import team_performance_menu
 from player_menu import player_performance_menu
 from config_loader import connect_to_database
 from main_menu import main_menu
-from event_statistics import event_statistics
+from event_statistics import event_statistics_menu
 
 def main():
     """Main function to handle the interface."""
