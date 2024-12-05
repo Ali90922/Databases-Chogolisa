@@ -6,29 +6,35 @@ from main_menu import main_menu
 from event_statistics import event_statistics_menu
 from query_executor import execute_query
 
+
 def season_rankings(connection):
     """Rank teams by total number of goals scored in the season, showing only the team names and ranks."""
     query = """
-        SELECT T.teamName
+        SELECT T.teamName, SUM(G.goals) AS total_goals
         FROM team_info T
         JOIN game_teams_stats G ON T.team_id = G.team_id
         GROUP BY T.teamName
-        ORDER BY SUM(G.goals) DESC;
+        ORDER BY total_goals DESC;
     """
-    results = execute_query(connection, query)
-    
-    if results:
-        print("\nSeason Rankings (Teams Ranked by Total Goals Scored):")
-        print("+----------------+-----------------+")
-        print("|    Rank        |    Team Name    |")
-        print("+----------------+-----------------+")
-        # Enumerate the results to show rankings starting from 1
-        for rank, result in enumerate(results, 1):
-            # Printing the rank and the team name with formatting
-            print(f"| {rank:<14} | {result['teamName']:<15} |")
-        print("+----------------+-----------------+")
-    else:
-        print("No data found for season rankings.")
+    try:
+        cursor = connection.cursor(as_dict=True)
+        cursor.execute(query)
+        results = cursor.fetchall()
+
+        if results:
+            print("\nSeason Rankings (Teams Ranked by Total Goals Scored):")
+            print("+------+----------------------+-------------+")
+            print("| Rank | Team Name            | Total Goals |")
+            print("+------+----------------------+-------------+")
+            # Enumerate the results to show rankings starting from 1
+            for rank, result in enumerate(results, start=1):
+                print(f"| {rank:<4} | {result['teamName']:<20} | {result['total_goals']:<11} |")
+            print("+------+----------------------+-------------+")
+        else:
+            print("No data found for season rankings.")
+    except Exception as e:
+        print(f"An error occurred while fetching season rankings: {e}")
+
 
 def main():
     """Main function to handle the interface."""
