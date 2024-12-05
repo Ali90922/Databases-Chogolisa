@@ -164,7 +164,9 @@ def main():
             execute_query(connection, query)
         elif choice == '6':  # Season Rankings
             season_rankings(connection)
-        elif choice == '7':  # Exit
+        elif choice == '7':  # Scratches Data
+            scratches_stats_menu(connection)
+        elif choice == '8':  # Exit
             print("Exiting the program. Goodbye!")
             break
         else:
