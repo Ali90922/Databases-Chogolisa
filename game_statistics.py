@@ -137,42 +137,57 @@ def game_statistics_menu(connection):
             query = queries[int(choice) - 1]
             execute_query(connection, query)
         elif choice == '5':  # Advanced Search
-            # Display all teams
-            print("\nDisplaying all teams:")
-            query = """
-                SELECT team_id, teamName
-                FROM team_info
-                ORDER BY teamName ASC;
-            """
-            execute_query(connection, query)
+            while True:
+                # Display all teams
+                print("\nDisplaying all teams:")
+                query = """
+                    SELECT team_id, teamName
+                    FROM team_info
+                    ORDER BY teamName ASC;
+                """
+                execute_query(connection, query)
 
-            # Ask user to select a team
-            team_id = input("\nEnter the team_id for detailed search: ")
+                # Ask user to select a team
+                team_id = input("\nEnter the team_id for detailed search: ")
 
-            # Display all games played by the selected team
-            print(f"\nDisplaying all games for team_id: {team_id}")
-            query = """
-                SELECT g.game_id, g.date_time_GMT, g.outcome, g.type, v.venue
-                FROM game g
-                JOIN Venue v ON g.venue_ID = v.venue_ID
-                JOIN game_teams_stats gts ON g.game_id = gts.game_id
-                WHERE gts.team_id = %s
-                ORDER BY g.date_time_GMT DESC;
-            """
-            execute_query(connection, query, (team_id,))
+                # Display all games played by the selected team
+                print(f"\nDisplaying all games for team_id: {team_id}")
+                query = """
+                    SELECT g.game_id, g.date_time_GMT, g.outcome, g.type, v.venue
+                    FROM game g
+                    JOIN Venue v ON g.venue_ID = v.venue_ID
+                    JOIN game_teams_stats gts ON g.game_id = gts.game_id
+                    WHERE gts.team_id = %s
+                    ORDER BY g.date_time_GMT DESC;
+                """
+                cursor = connection.cursor(as_dict=True)
+                cursor.execute(query, (team_id,))
+                results = cursor.fetchall()
 
-            # Ask user to select a game
-            game_id = input("\nEnter the game_id for detailed stats: ")
+                if not results:
+                    print(f"No games played by team with team_id: {team_id}. Please select another team.")
+                    continue  # Ask the user to select another team
 
-            # Display detailed stats for the selected game and team
-            print(f"\nDisplaying detailed stats for game_id: {game_id} and team_id: {team_id}")
-            query = """
-                SELECT gts.HoA, gts.won, gts.goals, gts.shots, gts.hits, gts.pim, gts.blocked,
-                       gts.powerPlayOpportunities, gts.powerPlayGoals, gts.faceOffWinPercentage,
-                       gts.takeaways, gts.giveaways, gts.startRinkSide
-                FROM game_teams_stats gts
-                WHERE gts.game_id = %s AND gts.team_id = %s;
-            """
-            execute_query(connection, query, (game_id, team_id))
+                # Display the games
+                table = PrettyTable()
+                table.field_names = ["game_id", "date_time_GMT", "outcome", "type", "venue"]
+                for row in results:
+                    table.add_row(row.values())
+                print(table)
+
+                # Ask user to select a game
+                game_id = input("\nEnter the game_id for detailed stats: ")
+
+                # Display detailed stats for the selected game and team
+                print(f"\nDisplaying detailed stats for game_id: {game_id} and team_id: {team_id}")
+                query = """
+                    SELECT gts.HoA, gts.won, gts.goals, gts.shots, gts.hits, gts.pim, gts.blocked,
+                           gts.powerPlayOpportunities, gts.powerPlayGoals, gts.faceOffWinPercentage,
+                           gts.takeaways, gts.giveaways, gts.startRinkSide
+                    FROM game_teams_stats gts
+                    WHERE gts.game_id = %s AND gts.team_id = %s;
+                """
+                execute_query(connection, query, (game_id, team_id))
+                break  # Exit the Advanced Search loop
         else:
             print("Invalid choice. Please select a valid option.")
