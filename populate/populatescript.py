@@ -79,7 +79,7 @@ config_file = "auth.config"  # Path to your config file
 # SQL file paths
 drop_sql_file = "drop.sql"  # Path to your DROP script
 create_table_sql_file = "create_table.sql"  # Path to your CREATE TABLE script
-insert_sql_file = "insert.sql"  # Path to your INSERT script
+insert_sql_file = "ordered_inserts.sql"  # Path to your INSERT script
 
 # Load credentials from the config file
 server, database, username, password = load_credentials(config_file)
