@@ -3,7 +3,7 @@ from team_performance_menu import team_performance_menu
 from player_menu import player_performance_menu
 from config_loader import connect_to_database
 from main_menu import main_menu
-
+from event_statistics import event_statistics
 
 def main():
     """Main function to handle the interface."""
@@ -23,7 +23,7 @@ def main():
         elif choice == '3':  # Game Statistics Queries
             game_statistics_menu(connection)
         elif choice == '4':  # Officiating Trends Queries (Placeholder)
-            print("Officiating Trends Queries are not yet implemented.")
+            event_statistics(menu)
         elif choice == '5':  # List All Teams
             query = "SELECT team_id, teamName FROM team_info ORDER BY teamName ASC;"
             from query_executor import execute_query
