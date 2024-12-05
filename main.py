@@ -8,13 +8,14 @@ from query_executor import execute_query
 
 
 def season_rankings(connection):
-    """Rank teams by total number of goals scored in the season, showing only the team names and ranks."""
+    """Rank teams by total number of wins in the season, showing only the team names and ranks."""
     query = """
-        SELECT T.teamName, SUM(G.goals) AS total_goals
+        SELECT T.teamName
         FROM team_info T
         JOIN game_teams_stats G ON T.team_id = G.team_id
+        WHERE G.won = 1
         GROUP BY T.teamName
-        ORDER BY total_goals DESC;
+        ORDER BY COUNT(G.won) DESC;
     """
     try:
         cursor = connection.cursor(as_dict=True)
@@ -22,14 +23,14 @@ def season_rankings(connection):
         results = cursor.fetchall()
 
         if results:
-            print("\nSeason Rankings (Teams Ranked by Total Goals Scored):")
-            print("+------+----------------------+-------------+")
-            print("| Rank | Team Name            | Total Goals |")
-            print("+------+----------------------+-------------+")
+            print("\nSeason Rankings (Teams Ranked by Total Wins):")
+            print("+------+----------------------+")
+            print("| Rank | Team Name            |")
+            print("+------+----------------------+")
             # Enumerate the results to show rankings starting from 1
             for rank, result in enumerate(results, start=1):
-                print(f"| {rank:<4} | {result['teamName']:<20} | {result['total_goals']:<11} |")
-            print("+------+----------------------+-------------+")
+                print(f"| {rank:<4} | {result['teamName']:<20} |")
+            print("+------+----------------------+")
         else:
             print("No data found for season rankings.")
     except Exception as e:
