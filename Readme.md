@@ -42,8 +42,9 @@
 
     - Run the following command:
       ```
-      make
+      make run
       ```
+    - Run `make help` to see help menu 
 
 3. **Use the interface:**
     - Follow the on-screen instructions to navigate through the menu and execute queries.
