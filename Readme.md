@@ -37,12 +37,12 @@
 1. **Ensure you have the necessary files:**
     - `Ensure you are in the root directory of the project (/Databases-Chogolisa).`
 
-2. **Run the `main.py` script:**
+2. **Run the interface using the 'make' command**
     - Ensure you have Python installed. (this runs on aviary without any installations)
 
-    - Run the `main.py` script:
+    - Run the following command:
       ```
-      python main.py
+      make
       ```
 
 3. **Use the interface:**
