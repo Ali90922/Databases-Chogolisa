@@ -8,7 +8,7 @@ import pymssql
 def load_config():
     """Load database credentials from auth.config."""
     config = configparser.ConfigParser()
-    config.read("populate/auth.config")
+    config.read("auth.config")
     return config["database"]
 
 def connect_to_database():
