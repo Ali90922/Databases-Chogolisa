@@ -5,6 +5,8 @@
 
 ### How to Populate the Database
 
+ - `Ensure you are in the Populate directory of the project (Databases-Chogolisa/Populate).
+
 1. **Ensure you have the necessary files:**
     - `create-table.sql`: Contains the SQL commands to create the necessary tables.
     - `ordered_inserts.sql`: Contains the sorted `INSERT` statements to populate the tables.
@@ -35,7 +37,7 @@
 
 ### How to Run the Interface
 1. **Ensure you have the necessary files:**
-    - `Ensure you are in the root directory of the project (/Databases-Chogolisa).`
+    - `Ensure you are in the Interface directory of the project (Databases-Chogolisa/Interface).`
 
 2. **Run the interface using the 'make' command**
     - Ensure you have Python installed. (this runs on aviary without any installations)
