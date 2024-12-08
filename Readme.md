@@ -15,7 +15,9 @@
     - `auth.config ` : Contains the credentials for login to the sql server
 
 2. **Configure the database connection:**
-    - Edit the `auth.config` file with your database credentials:
+    - Edit the `auth.config` file with the database credentials:
+      username is nawaza1
+      password is 
       ```
       [database]
       server = uranium.cs.umanitoba.ca
