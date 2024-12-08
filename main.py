@@ -130,6 +130,117 @@ def scratches_stats_menu(connection):
             print("Invalid choice. Please select a valid option.")
 
 
+def advanced_queries_menu(connection):
+    """Display the Advanced Queries submenu and execute related queries."""
+    while True:
+        print("+-----------------------------------------+")
+        print("| Advanced Analytics Queries              |")
+        print("+-----------------------------------------+")
+        print("| 1. Most Penalized Teams and Loss Rate   |")
+        print("| 2. Clutch Goals in Final 5 Minutes      |")
+        print("| 3. Top Assists between Player Pairs     |")
+        print("| 4. Most Aggressive Teams                |")
+        print("| 5. Back to Main Menu                    |")
+        print("+-----------------------------------------+")
+        
+        choice = input("Enter your choice: ")
+
+        if choice == '5':
+            print("Returning to Main Menu...")
+            break
+
+        # Queries corresponding to each option
+        queries = [
+    # 1. Most Penalized Teams and Loss Rate
+    """
+    SELECT 
+        t.teamName,
+        AVG(gts.pim) AS avg_penalty_minutes,
+        SUM(CASE WHEN gts.won = 1 THEN 0 ELSE 1 END) * 100.0 / COUNT(*) AS loss_percentage
+    FROM 
+        game_teams_stats gts
+    JOIN 
+        team_info t ON gts.team_id = t.team_id
+    GROUP BY 
+        t.teamName
+    ORDER BY 
+        loss_percentage DESC;
+    """,
+    
+    # 2. Clutch Goals in Final 5 Minutes
+    """
+    WITH RankedGoals AS (
+        SELECT 
+            p.firstName,
+            p.lastName,
+            COUNT(*) AS clutch_goals,
+            ROW_NUMBER() OVER (ORDER BY COUNT(*) DESC) AS row_num
+        FROM 
+            game_goals gg
+        JOIN 
+            Event e ON gg.play_id = e.play_id
+        JOIN 
+            Performs pf ON e.play_id = pf.play_id
+        JOIN 
+            player_info p ON pf.player_id = p.player_id
+        WHERE 
+            e.period = (SELECT MAX(period) FROM Event WHERE Event.game_id = e.game_id)
+            AND e.periodTime >= (20 * 60 - 5 * 60)  -- Last 5 minutes of the period
+        GROUP BY 
+            p.firstName, p.lastName
+    )
+    SELECT TOP 10 * FROM RankedGoals;
+    """,
+
+    # 3. Top Assists Between Player Pairs
+    """
+    SELECT TOP 10
+        a.firstName AS assister_firstName,
+        a.lastName AS assister_lastName,
+        b.firstName AS scorer_firstName,
+        b.lastName AS scorer_lastName,
+        COUNT(*) AS total_assists
+    FROM 
+        Performs pa
+    JOIN 
+        Performs pb ON pa.play_id = pb.play_id AND pa.player_id != pb.player_id
+    JOIN 
+        player_info a ON pa.player_id = a.player_id
+    JOIN 
+        player_info b ON pb.player_id = b.player_id
+    WHERE 
+        pa.playerType = 'Assist' AND pb.playerType = 'Scorer'
+    GROUP BY 
+        a.firstName, a.lastName, b.firstName, b.lastName
+    ORDER BY 
+        total_assists DESC;
+    """,
+
+    # 4. Most Aggressive Teams
+    """
+    SELECT TOP 10
+        t.teamName,
+        AVG(gts.hits) AS avg_hits,
+        AVG(gts.pim) AS avg_penalty_minutes,
+        (AVG(gts.hits) + AVG(gts.pim)) AS aggression_score
+    FROM 
+        game_teams_stats gts
+    JOIN 
+        team_info t ON gts.team_id = t.team_id
+    GROUP BY 
+        t.teamName
+    ORDER BY 
+        aggression_score DESC;
+    """
+]
+
+
+        # Execute the selected query
+        if choice.isdigit() and 1 <= int(choice) <= 4:
+            query = queries[int(choice) - 1]
+            execute_query(connection, query)
+        else:
+            print("Invalid choice. Please select a valid option.")
 
 
 
@@ -163,9 +274,13 @@ def main():
             season_rankings(connection)
         elif choice == '7':  # Scratches Data
             scratches_stats_menu(connection)
-        elif choice == '8':  # Exit
+        elif choice == '8':  # Advanced Analytics Queries
+           advanced_queries_menu(connection)
+        elif choice == '9':  # Exit
             print("Exiting the program. Goodbye!")
             break
+    
+
         else:
             print("Invalid choice. Please select a valid option.")
 
