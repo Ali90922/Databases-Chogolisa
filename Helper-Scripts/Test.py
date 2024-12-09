@@ -6,8 +6,8 @@ import pymssql
 # Database connection details
 server = 'uranium.cs.umanitoba.ca'
 database = 'cs3380'
-username = 'singhr62'
-password = '7964553'
+username = ''
+password = ''
 
 try:
     # Connect to the database
