@@ -33,7 +33,7 @@
       ```
       python populatescript.py
       ```
-      NOTE*** population wont run on aviary since there are no sql commands there.
+      NOTE*** population wont run on aviary since there are no sql commands there.(discussed with Heather)
 
 
 
