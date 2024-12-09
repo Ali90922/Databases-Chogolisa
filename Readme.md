@@ -15,7 +15,7 @@
     - `auth.config ` : Contains the credentials for login to the sql server
 
 2. **Configure the database connection:**
-    - Edit the `auth.config` file with the database credentials (already set in a populate/auth.config):
+    - Edit the `auth.config` file with the database credentials (already set in the populate/auth.config):
      - username is nawaza1
      - password is 7951458
       ```
